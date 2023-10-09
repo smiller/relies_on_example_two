@@ -163,3 +163,16 @@ def relies_on_message(requirement)
     ""
   end
 end
+
+def reckon_requirement(example)
+  example_matches = /.+\((.+):(\d+)\).+/.match(example.inspect)
+  line_number = example_matches[2].to_i - 1
+  stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", example_matches[1])
+  lines = stdout.split("\n")
+  lines.each do |line|
+    line_matches = /#{example_matches[1]}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    if line_matches[1].to_i == line_number
+      return line_matches[2]
+    end
+  end
+end

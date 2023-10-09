@@ -8,12 +8,12 @@ RSpec.describe "with requirement" do
     describe "keys in response" do
       # @REQUIREMENT: my_hounds includes :breeding_stock
       it "includes :breeding_stock" do
-        expect(subject).to include_key(:breeding_stock, "my_hounds includes :breeding_stock")
+        expect(subject).to include_key(:breeding_stock, reckon_requirement(self))
       end
 
       # @REQUIREMENT: my_hounds includes :traits
       it "includes :traits" do
-        expect(subject).to include_key(:traits, "my_hounds includes :traits")
+        expect(subject).to include_key(:traits, reckon_requirement(self))
       end
     end
   end
