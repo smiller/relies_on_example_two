@@ -158,21 +158,21 @@ end
 def relies_on_message(requirement)
   relies_on = RSpec.configuration.relies_on.fetch(requirement, [])
   if relies_on.any?
-    "\nOther specs relying on this: \n- #{relies_on.join("\n- ")}"
+    "\nOther specs relying on requirement '#{requirement}': \n- #{relies_on.join("\n- ")}"
   else
     ""
   end
 end
 
-def reckon_requirement(example)
-  example_matches = /.+\((.+):(\d+)\).+/.match(example.inspect)
-  line_number = example_matches[2].to_i - 1
-  stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", example_matches[1])
+def reckon_requirement(full_path_file_name, line_number)
+  file_name = "./#{full_path_file_name[`pwd`.length..]}"
+  stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
   lines = stdout.split("\n")
   lines.each do |line|
-    line_matches = /#{example_matches[1]}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
-    if line_matches[1].to_i == line_number
-      return line_matches[2]
+    matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    if matches[1].to_i == line_number
+      return matches[2]
     end
   end
+  raise "requirement expected but not found at file #{file_name} line #{line_number}"
 end
