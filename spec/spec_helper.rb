@@ -1,3 +1,8 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter "spec/relies_on/"
+end
+
 require 'open3'
 require 'pry'
 require 'relies_on_helper'
