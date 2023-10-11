@@ -27,15 +27,21 @@ end
 
 def build_relies_on
   relies_on = Hash.new { |hash, key| hash[key] = [] }
-  FileUtils.rm_r("related_repos") if Dir.exist?("related_repos")
 
   repo = repos[0]
   relies_on = build_relies_on_for_one_repo(repo[:repo_url], repo[:source_directory], repo[:relies_on_label], relies_on)
 
-  FileUtils.mkdir("related_repos")
+  unless ENV['REUSE_RELATED_REPOS'] == "true"
+    FileUtils.rm_r("related_repos") if Dir.exist?("related_repos")
+    FileUtils.mkdir("related_repos")
+  end
+
   FileUtils.cd("related_repos")
   repos[1..].each do |repo|
-    system("git clone #{repo[:repo_url]}")
+    unless ENV['REUSE_RELATED_REPOS'] == "true"
+      system("git clone #{repo[:repo_url]}")
+    end
+
     relies_on = build_relies_on_for_one_repo(repo[:repo_url], repo[:source_directory], repo[:relies_on_label], relies_on)
   end
   FileUtils.cd("..")
