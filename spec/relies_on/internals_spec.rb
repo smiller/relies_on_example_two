@@ -58,6 +58,30 @@ RSpec.describe "relies_on internals" do
       expect(relies_on_message("but nothing relies on this requirement yet")).to eq("")
     end
   end
+
+  # This is the internal spec using the internal repos list, so we can test both happy and unhappy paths.
+  # The validate_labels_match_spec is intended to be added to the repo using relies_on and to test
+  # that project's repos list, so it should pass, or there's a problem.
+  context "ensure all @RELIES_ON labels in this repo match a @REQUIREMENT label in this or another repo" do
+    describe "unhappy path (inserts an extra unmatched relies_on)" do
+      # @RELIES_ON: <repo:relies_on_example_two_related_repo> A requirement in a related repo
+      it "fails" do
+        relies_ons = retrieve_relies_ons
+        relies_ons << "this is a made-up relies_on and should fail"
+        matched_relies_ons = match_requirements_to_relies_ons(relies_ons)
+        expect(matched_relies_ons.values.uniq).to eq([true, false])
+      end
+    end
+
+    describe "happy path" do
+      # @RELIES_ON: <repo:relies_on_example_two_related_repo> A requirement in a related repo
+      it "succeeds" do
+        relies_ons = retrieve_relies_ons
+        matched_relies_ons = match_requirements_to_relies_ons(relies_ons)
+        expect(matched_relies_ons.values.uniq).to eq([true])
+      end
+    end
+  end
 end
 
 class Service
