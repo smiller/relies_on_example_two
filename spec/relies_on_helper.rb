@@ -77,3 +77,32 @@ def read_requirement(full_path_file_name, line_number)
   end
   raise "requirement expected but not found at file #{file_name} line #{line_number}"
 end
+
+def retrieve_relies_ons
+  retrieve_labels("# @RELIES_ON: ", "./spec")
+end
+
+def match_requirements_to_relies_ons(relies_ons)
+  matches = relies_ons.map { |key| [key, false] }.to_h
+  matches.map { |relies_on, _| [relies_on, requirement_exists_for_relies_on?(relies_on)] }.to_h
+end
+
+def requirement_exists_for_relies_on?(relies_on)
+  search_in = "./spec"
+  if relies_on.start_with?("<repo:")
+    matches = /<repo:(.+)> (.+)/.match(relies_on)
+    repo = matches[1]
+    relies_on = matches[2]
+    search_in = "./related_repos/#{repo}/spec"
+  end
+  retrieve_labels("# @REQUIREMENT: ", search_in).include?(relies_on)
+end
+
+def retrieve_labels(label_marker, search_in)
+  stdout, _, _ = Open3.capture3("grep", "-nr", label_marker, search_in)
+  lines = stdout.split("\n").select { |l| l.include?("_spec.rb:") }
+  lines.map do |line|
+    _, label = line.split(/\:\s+#{label_marker}/)
+    label
+  end.uniq
+end
