@@ -6,6 +6,8 @@ RSpec.configure do |config|
   config.before(:suite) do
     config.relies_on = build_relies_on
   end
+
+  config.include(ReliesOnMatchers)
 end
 
 def repos
@@ -60,15 +62,6 @@ def build_relies_on_for_one_repo(repo_url, source_directory, relies_on_label, re
     end
   end
   relies_on
-end
-
-def relies_on_message(requirement)
-  relies_on = RSpec.configuration.relies_on.fetch(requirement, [])
-  if relies_on.any?
-    "\nOther specs relying on requirement '#{requirement}':\n- #{relies_on.join("\n- ")}"
-  else
-    ""
-  end
 end
 
 def read_requirement(full_path_file_name, line_number)
