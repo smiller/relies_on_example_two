@@ -67,9 +67,11 @@ end
 def read_requirement(full_path_file_name, line_number)
 puts "full_path_file_name=#{full_path_file_name}"
 matches = /.+(\/spec\/.+)/.match(full_path_file_name)
-puts "matches=#{matches}"
+puts "matches=#{matches.inspect}"
   file_name = ".#{matches[1]}"
-  stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
+  stdout, stderr, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
+  puts "stdout=#{stdout}"
+  puts "stderr=#{stderr}"
   lines = stdout.split("\n")
   lines.each do |line|
     matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
