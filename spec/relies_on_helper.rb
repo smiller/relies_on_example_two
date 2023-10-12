@@ -74,7 +74,14 @@ puts "matches=#{matches.inspect}"
   puts "stderr=#{stderr}"
   lines = stdout.split("\n")
   lines.each do |line|
-    matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    # This is very weird.  This used to be
+    # matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    # which worked locally, but the line in the github actions version
+    # started with the line number, not with "#{file_name}:", so it
+    # worked locally but not on github actions.  This will presumably work
+    # in both but I don't yet know why the github actions stdout is different.
+    matches = /\D*(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    puts "matches=#{matches.inspect}"
     if matches[1].to_i == line_number
       return matches[2]
     end
