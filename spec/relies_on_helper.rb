@@ -65,11 +65,23 @@ def build_relies_on_for_one_repo(repo_url, source_directory, relies_on_label, re
 end
 
 def read_requirement(full_path_file_name, line_number)
-  file_name = "./#{full_path_file_name[`pwd`.length..]}"
-  stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
+puts "full_path_file_name=#{full_path_file_name}"
+matches = /.+(\/spec\/.+)/.match(full_path_file_name)
+puts "matches=#{matches.inspect}"
+  file_name = ".#{matches[1]}"
+  stdout, stderr, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
+  puts "stdout=#{stdout}"
+  puts "stderr=#{stderr}"
   lines = stdout.split("\n")
   lines.each do |line|
-    matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    # This is very weird.  This used to be
+    # matches = /#{file_name}:(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    # which worked locally, but the line in the github actions version
+    # started with the line number, not with "#{file_name}:", so it
+    # worked locally but not on github actions.  This will presumably work
+    # in both but I don't yet know why the github actions stdout is different.
+    matches = /\D*(\d+).+# @REQUIREMENT: (.+)/.match(line)
+    puts "matches=#{matches.inspect}"
     if matches[1].to_i == line_number
       return matches[2]
     end
