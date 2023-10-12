@@ -65,7 +65,9 @@ def build_relies_on_for_one_repo(repo_url, source_directory, relies_on_label, re
 end
 
 def read_requirement(full_path_file_name, line_number)
-  matches = /.+(\/spec\/.+)/.match(full_path_file_name)
+puts "full_path_file_name=#{full_path_file_name}"
+matches = /.+(\/spec\/.+)/.match(full_path_file_name)
+puts "matches=#{matches}"
   file_name = ".#{matches[1]}"
   stdout, _, _ = Open3.capture3("grep", "-nr", "# @REQUIREMENT: ", file_name)
   lines = stdout.split("\n")
